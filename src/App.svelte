@@ -5,15 +5,6 @@
 	let ctx:CanvasRenderingContext2D;
 	let video:HTMLVideoElement;
 
-	let target = function(position = Array(1), scale = Array([100,100]){
-		let position = position;
-		let scale = scale;
-	}
-
-	let targetArr = [
-		target([10, 10])
-	];
-	
 	onMount(()=>{
 		ctx = canvas.getContext('2d');
 		canvas.width = 400;
@@ -22,11 +13,11 @@
 	});
 
 	function step(){
-		console.log('drawing')
-		ctx.drawImage(video, 200, 230, video.videoWidth, video.videoHeight, 0, 0, 300, 300);
+		ctx.drawImage(video, 140, 100, video.videoWidth, video.videoHeight, 0, 0, 3000, 3000);
 		requestAnimationFrame(step);
 	}
 
+	console.log(navigator.mediaDevices);
 	navigator.mediaDevices.getUserMedia({video: true, audio: false}).
 	then((stream)=>{
 		let videoTracks = stream.getTracks();
@@ -40,11 +31,13 @@
 <main>
 	<canvas bind:this={canvas} />
 	<div>
+		<!--
 		{#each targetArr as target }
 			<div style={"top: "+target.position[1]+"; left:" + target.position[0]} class="target">
 
 			</div>
 		{/each}
+		-->
 
 		<video autoplay bind:this={video} />
 	</div>
