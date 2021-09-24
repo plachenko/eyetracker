@@ -4,6 +4,7 @@
 	let canvas:HTMLCanvasElement;
 	let ctx:CanvasRenderingContext2D;
 	let video:HTMLVideoElement;
+	let target:HTMLElement;
 
 	onMount(()=>{
 		ctx = canvas.getContext('2d');
@@ -17,7 +18,6 @@
 		requestAnimationFrame(step);
 	}
 
-	console.log(navigator.mediaDevices);
 	navigator.mediaDevices.getUserMedia({video: true, audio: false}).
 	then((stream)=>{
 		let videoTracks = stream.getTracks();
@@ -30,7 +30,8 @@
 
 <main>
 	<canvas bind:this={canvas} />
-	<div>
+	<div id="container">
+		<div bind:this={target} class="target"></div>
 		<!--
 		{#each targetArr as target }
 			<div style={"top: "+target.position[1]+"; left:" + target.position[0]} class="target">
@@ -70,10 +71,19 @@
 		left: 0px;
 	}
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
+	.target{
+		color:#F00;
+		width: 100px;
+		height: 100px;
+		position: absolute;
+		top: 0px;
+		z-index: 9999;
+		left: 0px;
+	}
+	#container{
+		width: 400px;
+		height: 300px;
+		position: relative;
+		border:1px solid;
 	}
 </style>
