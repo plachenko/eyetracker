@@ -10,6 +10,22 @@
 	let capImg;
 
 	onMount(()=>{
+		let ws = new WebSocket('ws://localhost:8081');
+
+		ws.addEventListener('open', (e) => {
+			console.log('sending hi.')
+			ws.send(canvas);
+		});
+
+		ws.addEventListener('message',(e)=>{
+			let reader = new FileReader();
+
+			reader.onload = () => {
+				console.log('got', reader.result);
+			}
+			reader.readAsText(e.data)
+		})
+
 		ctx = canvas.getContext('2d');
 		canvas.width = 400;
 		canvas.height = 300;
@@ -62,14 +78,14 @@
 			if(data[c+0] >= prevData[c+0]){
 				data[c + 0] = pix.r;
 			}else{
-				data[c + 0] = 0;
+				data[c + 0] += 20;
 			}
 
 			//Green Channel.
 			if(data[c+1] >= prevData[c+1]){
 				data[c + 1] = pix.g;
 			}else{
-				data[c + 1] = 0;
+				data[c + 1] += 10;
 			}
 
 			//Blue Channel.
@@ -80,11 +96,13 @@
 			}
 
 			//Alpha Channel.
-			let thresh= 0;
-			if(pix.r > thresh && pix.g > thresh && pix.b > thresh){
+			let thresh= 10;
+			if(pix.r > thresh && pix.g >= thresh && pix.b > thresh){
+				/* data[c+3] = pix.a*2 - data[c+0]*9; */
 				data[c + 3] = pix.a;
 			}else{
-				data[c+3] = 100;
+				data[c + 3] = 0;
+				/* data[c + 3] = pix.a; */
 			}
 		}
 
@@ -95,7 +113,7 @@
 
 		setTimeout(()=>{
 			requestAnimationFrame(step);
-		}, 100);
+		}, 10);
 	}
 
 	function capture(){
