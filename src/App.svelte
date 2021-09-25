@@ -37,10 +37,17 @@
 
 		// 3) Run through image data pixels...
 		for(let c = 0; c < data.length; c += 4){
-			let pix = {
-				r: data[c + 0] - capImg[c+0],
-				g: data[c + 1] - capImg[c + 1],
-				b: data[c + 2] - capImg[c+2],
+			let dataPix = {
+				r: data[c + 0],
+				g: data[c + 1],
+				b: data[c + 2],
+				a: 255
+			}
+
+			let capPix = {
+				r: capImg[c + 0],
+				g: capImg[c + 1],
+				b: capImg[c + 2],
 				a: 255
 			}
 
@@ -59,33 +66,42 @@
 			*/
 
 			//Red Channel.
-			if(data[c+0] >= prevData[c+0]){
-				data[c + 0] = pix.r;
+			if(data[c + 0] <= prevData[c + 0]){
+				/* data[c + 0] += Math.sin(stepNum / 2) * 300 + data[c+0];
+				data[c + 1] += Math.cos(stepNum / 2) * 90;
+				data[c + 2] += Math.tan(stepNum / 180) * 20; */
+				data[c + 0] -= Math.sin(stepNum *.4 + prevData[c+0] / 30) * 20;
+				data[c + 1] -= Math.cos(stepNum *.4 + prevData[c+2] / 100) * 200;
+				data[c + 2] += Math.cos(stepNum *.9 + data[c+1] / 100) * 200;
 			}else{
-				data[c + 0] = 0;
+				data[c + 0] = 100;
+				data[c+3] = 3;
 			}
+			/*
 
-			//Green Channel.
 			if(data[c+1] >= prevData[c+1]){
-				data[c + 1] = pix.g;
+				data[c + 1] = capPix.g;
 			}else{
 				data[c + 1] = 0;
 			}
 
-			//Blue Channel.
 			if(data[c+2] >= prevData[c+2]){
-				data[c + 2] = pix.b;
+				data[c + 2] = capPix.b;
 			}else{
 				data[c + 2] = 0;
 			}
+			*/
 
 			//Alpha Channel.
-			let thresh= 0;
+			let thresh= 20;
+			/*
 			if(pix.r > thresh && pix.g > thresh && pix.b > thresh){
 				data[c + 3] = pix.a;
 			}else{
 				data[c+3] = 100;
 			}
+			*/
+
 		}
 
 		let imgd = new ImageData(data, 80*5);
@@ -95,6 +111,7 @@
 
 		setTimeout(()=>{
 			requestAnimationFrame(step);
+			stepNum++;
 		}, 100);
 	}
 
@@ -150,10 +167,12 @@
 	canvas{
 		position: absolute;
 		border: 1px solid;
+		z-index: 9999;
 	}
 
 	video{
-		display: none;
+		/* display: none; */
+		z-index: 0;
 		width: 400px;
 		position: absolute;
 		top:0px;
