@@ -38,9 +38,9 @@
 		// 3) Run through image data pixels...
 		for(let c = 0; c < data.length; c += 4){
 			let pix = {
-				r: data[c + 0] - capImg[c+0],
-				g: data[c + 1] - capImg[c + 1],
-				b: data[c + 2] - capImg[c+2],
+				r: data[c + 0] + prevData[c+0],
+				g: data[c + 1] + prevData[c + 1] * capImg[c+0]*2,
+				b: data[c + 2] += capImg[c+2] * Math.sin(stepNum/10)*capImg[c+2],
 				a: 255
 			}
 
@@ -62,21 +62,21 @@
 			if(data[c+0] >= prevData[c+0]){
 				data[c + 0] = pix.r;
 			}else{
-				data[c + 0] = 0;
+				data[c + 0] -= 100;
 			}
 
 			//Green Channel.
 			if(data[c+1] >= prevData[c+1]){
 				data[c + 1] = pix.g;
 			}else{
-				data[c + 1] = 0;
+				data[c + 1] = prevData[c+0];
 			}
 
 			//Blue Channel.
-			if(data[c+2] >= prevData[c+2]){
-				data[c + 2] = pix.b;
+			if(data[c+2] == prevData[c+0]){
+				data[c + 2] += pix.b/2;
 			}else{
-				data[c + 2] = 0;
+				data[c + 2] = 90;
 			}
 
 			//Alpha Channel.
@@ -84,7 +84,7 @@
 			if(pix.r > thresh && pix.g > thresh && pix.b > thresh){
 				data[c + 3] = pix.a;
 			}else{
-				data[c+3] = 100;
+				data[c+3] = 250;
 			}
 		}
 
@@ -95,7 +95,7 @@
 
 		setTimeout(()=>{
 			requestAnimationFrame(step);
-		}, 100);
+		}, 43);
 	}
 
 	function capture(){
