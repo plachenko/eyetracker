@@ -9,10 +9,13 @@
 	let prevData;
 	let capImg;
 
+	const width = 400;
+	const height= 300;
+
 	onMount(()=>{
 		ctx = canvas.getContext('2d');
-		canvas.width = 400;
-		canvas.height = 300;
+		canvas.width = width;
+		canvas.height = height;
 		step();
 	});
 
@@ -22,7 +25,9 @@
 				- it's image data Object 
 				- specify the image data pixels
 		*/
-		ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, 400, 300);
+
+
+		ctx.drawImage(video, 0, 0, width, height, 0, 0, width, height);
 		let img = ctx.getImageData(0,0,canvas.width,canvas.height);
 		let data = img.data;
 
@@ -38,9 +43,9 @@
 		// 3) Run through image data pixels...
 		for(let c = 0; c < data.length; c += 4){
 			let pix = {
-				r: data[c + 0] - capImg[c+0],
+				r: data[c + 0] - capImg[c + 0],
 				g: data[c + 1] - capImg[c + 1],
-				b: data[c + 2] - capImg[c+2],
+				b: data[c + 2] + capImg[c + 2],
 				a: 255
 			}
 
@@ -62,45 +67,56 @@
 			if(data[c+0] >= prevData[c+0]){
 				data[c + 0] = pix.r;
 			}else{
-				data[c + 0] = 0;
+				data[c + 0] = pix.b /2;
 			}
 
 			//Green Channel.
 			if(data[c+1] >= prevData[c+1]){
 				data[c + 1] = pix.g;
 			}else{
-				data[c + 1] = 0;
+				data[c + 1] = pix.r/100;
 			}
 
 			//Blue Channel.
 			if(data[c+2] >= prevData[c+2]){
 				data[c + 2] = pix.b;
 			}else{
-				data[c + 2] = 0;
+				data[c + 2] = pix.b/40;
+			}
+
+			if(data[c+0] >= 20){
+				/* data[c+0] = 100; */
+
 			}
 
 			//Alpha Channel.
-			let thresh= 0;
-			if(pix.r > thresh && pix.g > thresh && pix.b > thresh){
-				data[c + 3] = pix.a;
+			let thresh= 10;
+			if(capImg[c+1] <= prevData[c+1]-thresh && data[c+1] >= prevData[c+1]+thresh){
+				data[c + 3] -= 250;
 			}else{
-				data[c+3] = 100;
+				data[c+3] = 250;
+			}
+
+			data[c+3] = 150 - data[c+3];
+
+			if(prevData[c+0] >= 50){
+				prevData[c+3] = 0;
 			}
 		}
 
-		let imgd = new ImageData(data, 80*5);
+
+		let imgd = new ImageData(data, width);
 		ctx.putImageData(imgd, 0,0);
 
 		prevData = data;
 
 		setTimeout(()=>{
 			requestAnimationFrame(step);
-		}, 100);
+		}, 0);
 	}
 
 	function capture(){
 		setTimeout(()=>{
-			console.log('capture');
 			capImg = ctx.getImageData(0,0,canvas.width,canvas.height).data;
 			requestAnimationFrame(step);
 		}, 1000);
