@@ -9,6 +9,10 @@
 	let prevData;
 	let capImg;
 
+	let threshold = 10;
+
+	let capArray = [];
+
 	const width = 400;
 	const height= 300;
 
@@ -41,8 +45,6 @@
 				- it's image data Object 
 				- specify the image data pixels
 		*/
-
-
 		ctx.drawImage(video, 0, 0, width, height, 0, 0, width, height);
 		let img = ctx.getImageData(0,0,canvas.width,canvas.height);
 		let data = img.data;
@@ -56,79 +58,31 @@
 			capImg = data;
 		}
 
-		// 3) Run through image data pixels...
-		for(let c = 0; c < data.length; c += 4){
-			let pix = {
-				r: data[c + 0] - capImg[c + 0],
-				g: data[c + 1] - capImg[c + 1],
-				b: data[c + 2] + capImg[c + 2],
-				a: 255
-			}
-
-			/*
-			if(data[c+0] <= capImg.data[c+0]-10 && data[c+0]>=capImg.data[c+0]+10){
-				data[c + 0] = 125;
-			}else{
-				data[c + 0] = data[c + 0];
-			}
-
-			if(data[c+1] == capImg.data[c+1]){
-				data[c + 1] = 20;
-			}else{
-				data[c + 1] = data[c+1];
-			}
-			*/
-
-			//Red Channel.
-			if(data[c+0] >= prevData[c+0]){
-				data[c + 0] = pix.r;
-			}else{
-				data[c + 0] = pix.b /2;
-			}
-
-			//Green Channel.
-			if(data[c+1] >= prevData[c+1]){
-				data[c + 1] = pix.g;
-			}else{
-				data[c + 1] = pix.r/100;
-			}
-
-			//Blue Channel.
-			if(data[c+2] >= prevData[c+2]){
-				data[c + 2] = pix.b;
-			}else{
-				data[c + 2] = pix.b/40;
-			}
-
-			if(data[c+0] >= 20){
-				/* data[c+0] = 100; */
-
-			}
-
-			//Alpha Channel.
-			let thresh= 10;
-			if(capImg[c+1] <= prevData[c+1]-thresh && data[c+1] >= prevData[c+1]+thresh){
-				data[c + 3] -= 250;
-			}else{
-				data[c+3] = 250;
-			}
-
-			data[c+3] = 150 - data[c+3];
-
-			if(prevData[c+0] >= 50){
-				prevData[c+3] = 0;
-			}
+		if(stepNum < 4){
+			console.log(stepNum);
 		}
 
+		// 3) Run through image data pixels...
+		for(let c = 0; c < data.length; c += 4){
+			for(let col = 0; col < 3; col++){
+				const color = data[c + col];
+
+				if(color <= capImg[c+col] + threshold){
+					data[c + 3] = prevData[c + 3]*.7;
+					prevData[c + 3] = data[c + 3];
+				}
+			}
+		}
 
 		let imgd = new ImageData(data, width);
 		ctx.putImageData(imgd, 0,0);
 
 		prevData = data;
-
+		
 		setTimeout(()=>{
+			stepNum++;
 			requestAnimationFrame(step);
-		}, 0);
+		}, 1);
 	}
 
 	function capture(){
@@ -164,6 +118,7 @@
 		<video autoplay bind:this={video} />
 	</div>
 	<a href="#" on:click={capture}>capture</a>
+	<input type="range" bind:value={threshold}>
 </main>
 
 <style>
